@@ -24,14 +24,44 @@ jobs:
 
       - name: Inject application properties from secrets
         run: |
-          echo "spring.datasource.url=${{ secrets.DB_URL }}" >> src/main/resources/application.properties
-          echo "spring.datasource.username=${{ secrets.DB_USERNAME }}" >> src/main/resources/application.properties
-          echo "spring.datasource.password=${{ secrets.DB_PASSWORD }}" >> src/main/resources/application.properties
-          echo "spring.mail.username=${{ secrets.MAIL_USERNAME }}" >> src/main/resources/application.properties
-          echo "spring.mail.password=${{ secrets.MAIL_PASSWORD }}" >> src/main/resources/application.properties
-          echo "jwt.secret=${{ secrets.JWT_SECRET }}" >> src/main/resources/application.properties
-          echo "stripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}" >> src/main/resources/application.properties
-          echo "stripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}" >> src/main/resources/application.properties
+          cat > src/main/resources/application.properties <<EOF
+          spring.application.name=Edelala
+          server.port=8080
+          spring.datasource.url=${{ secrets.DB_URL }}
+          spring.datasource.username=${{ secrets.DB_USERNAME }}
+          spring.datasource.password=${{ secrets.DB_PASSWORD }}
+          spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+          spring.jpa.hibernate.ddl-auto=create-drop
+          spring.jpa.show-sql=true
+          spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+          spring.mail.host=smtp.gmail.com
+          spring.mail.port=587
+          spring.mail.username=${{ secrets.MAIL_USERNAME }}
+          spring.mail.password=${{ secrets.MAIL_PASSWORD }}
+          spring.mail.properties.mail.smtp.auth=true
+          spring.mail.properties.mail.smtp.starttls.enable=true
+          logging.level.root=INFO
+          logging.level.com.edelala.mur=DEBUG
+          logging.level.com.edelala.mur.security.JwtRequestFilter=TRACE
+          logging.level.com.edelala.mur.util.JwtUtil=DEBUG
+          logging.level.org.springframework.security=DEBUG
+          logging.level.org.springframework.security.web=DEBUG
+          logging.level.io.jsonwebtoken=DEBUG
+          logging.level.org.hibernate.SQL=DEBUG
+          logging.level.org.hibernate.orm.jdbc.bind=TRACE
+          logging.level.org.hibernate.engine.internal.SessionLazyLoadContext=DEBUG
+          server.servlet.session.cookie.http-only=true
+          server.servlet.session.cookie.same-site=Lax
+          jwt.secret=${{ secrets.JWT_SECRET }}
+          jwt.expiration=3600000
+          frontend.base-url=http://localhost:5173
+          upload.dir=uploads
+          spring.servlet.multipart.max-file-size=50MB
+          spring.servlet.multipart.max-request-size=55MB
+          stripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}
+          stripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+          broker.service.fee=100.00
+          EOF
 
       - name: Build with Maven
         run: mvn -B package --file pom.xml
