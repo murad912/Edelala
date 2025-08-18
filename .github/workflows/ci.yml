@@ -17,7 +17,7 @@ jobs:
       mysql_db:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Use a secret for the root password
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: room_rent_db
         ports:
           - 3306:3306
@@ -37,50 +37,20 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Inject application properties from secrets
-        run: |
-          cat > src/main/resources/application.properties <<EOF
-          spring.application.name=Edelala
-          server.port=8080
-          # Database URL points to the service container name: "mysql_db"
-          spring.datasource.url=jdbc:mysql://mysql_db:3306/room_rent_db?allowPublicKeyRetrieval=true&useSSL=false
-          spring.datasource.username=root
-          spring.datasource.password=${{ secrets.MYSQL_ROOT_PASSWORD }}
-          spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-          spring.jpa.hibernate.ddl-auto=create-drop
-          spring.jpa.show-sql=true
-          spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-          spring.mail.host=smtp.gmail.com
-          spring.mail.port=587
-          spring.mail.username=${{ secrets.MAIL_USERNAME }}
-          spring.mail.password=${{ secrets.MAIL_PASSWORD }}
-          spring.mail.properties.mail.smtp.auth=true
-          spring.mail.properties.mail.smtp.starttls.enable=true
-          logging.level.root=INFO
-          logging.level.com.edelala.mur=DEBUG
-          logging.level.com.edelala.mur.security.JwtRequestFilter=TRACE
-          logging.level.com.edelala.mur.util.JwtUtil=DEBUG
-          logging.level.org.springframework.security=DEBUG
-          logging.level.org.springframework.security.web=DEBUG
-          logging.level.io.jsonwebtoken=DEBUG
-          logging.level.org.hibernate.SQL=DEBUG
-          logging.level.org.hibernate.orm.jdbc.bind=TRACE
-          logging.level.org.hibernate.engine.internal.SessionLazyLoadContext=DEBUG
-          server.servlet.session.cookie.http-only=true
-          server.servlet.session.cookie.same-site=Lax
-          jwt.secret=${{ secrets.JWT_SECRET }}
-          jwt.expiration=3600000
-          frontend.base-url=http://localhost:5173
-          upload.dir=uploads
-          spring.servlet.multipart.max-file-size=50MB
-          spring.servlet.multipart.max-request-size=55MB
-          stripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}
-          stripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
-          broker.service.fee=100.00
-          EOF
-
+      # The properties are now directly injected here.
       - name: Build with Maven
-        run: mvn -B package --file pom.xml
+        run: >
+          mvn -B package --file pom.xml
+          -Dspring.datasource.url=jdbc:mysql://mysql_db:3306/room_rent_db?allowPublicKeyRetrieval=true&useSSL=false
+          -Dspring.datasource.username=root
+          -Dspring.datasource.password=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          -Dspring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+          -Dspring.jpa.hibernate.ddl-auto=create-drop
+          -Dspring.mail.username=${{ secrets.MAIL_USERNAME }}
+          -Dspring.mail.password=${{ secrets.MAIL_PASSWORD }}
+          -Djwt.secret=${{ secrets.JWT_SECRET }}
+          -Dstripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}
+          -Dstripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
 
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v4
