@@ -1,3 +1,65 @@
+#name: Java CI with Maven
+#
+#on:
+#  push:
+#    branches:
+#      - main
+#  pull_request:
+#    branches:
+#      - main
+#
+#jobs:
+#  build:
+#    runs-on: ubuntu-latest
+#
+#    # Define a MySQL service container
+#    services:
+#      mysql_db:
+#        image: mysql:8.0
+#        env:
+#          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+#          MYSQL_DATABASE: room_rent_db
+#        ports:
+#          - 3306:3306
+#        options: >-
+#          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+#          --health-interval=10s
+#          --health-timeout=5s
+#          --health-retries=5
+#
+#    steps:
+#      - uses: actions/checkout@v4
+#
+#      - name: Set up JDK 17
+#        uses: actions/setup-java@v4
+#        with:
+#          java-version: '17'
+#          distribution: 'temurin'
+#          cache: 'maven'
+#
+#      # The properties are now directly injected here.
+#      - name: Build with Maven
+#        run: >
+#          mvn -B package --file pom.xml
+#          -Dspring.datasource.url=jdbc:mysql://mysql_db:3306/room_rent_db?allowPublicKeyRetrieval=true&useSSL=false
+#          -Dspring.datasource.username=root
+#          -Dspring.datasource.password=${{ secrets.MYSQL_ROOT_PASSWORD }}
+#          -Dspring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+#          -Dspring.jpa.hibernate.ddl-auto=create-drop
+#          -Dspring.mail.username=${{ secrets.MAIL_USERNAME }}
+#          -Dspring.mail.password=${{ secrets.MAIL_PASSWORD }}
+#          -Djwt.secret=${{ secrets.JWT_SECRET }}
+#          -Dstripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}
+#          -Dstripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+#
+#      - name: Upload JAR as an artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: my-spring-app
+#          path: target/*.jar
+
+
+
 name: Java CI with Maven
 
 on:
@@ -12,17 +74,16 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    # Define a MySQL service container
     services:
       mysql_db:
         image: mysql:8.0
         env:
           MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
-          MYSQL_DATABASE: room_rent_db
+          MYSQL_DATABASE: test_db
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h 127.00.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -37,20 +98,8 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      # The properties are now directly injected here.
       - name: Build with Maven
-        run: >
-          mvn -B package --file pom.xml
-          -Dspring.datasource.url=jdbc:mysql://mysql_db:3306/room_rent_db?allowPublicKeyRetrieval=true&useSSL=false
-          -Dspring.datasource.username=root
-          -Dspring.datasource.password=${{ secrets.MYSQL_ROOT_PASSWORD }}
-          -Dspring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-          -Dspring.jpa.hibernate.ddl-auto=create-drop
-          -Dspring.mail.username=${{ secrets.MAIL_USERNAME }}
-          -Dspring.mail.password=${{ secrets.MAIL_PASSWORD }}
-          -Djwt.secret=${{ secrets.JWT_SECRET }}
-          -Dstripe.api.secret-key=${{ secrets.STRIPE_SECRET_KEY }}
-          -Dstripe.api.publishable-key=${{ secrets.STRIPE_PUBLISHABLE_KEY }}
+        run: mvn -B package -Pci-test --file pom.xml
 
       - name: Upload JAR as an artifact
         uses: actions/upload-artifact@v4
