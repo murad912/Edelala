@@ -11,18 +11,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
 
-    # Define a MySQL service container
     services:
       mysql_db:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Use secrets here
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
           MYSQL_DATABASE: test_db
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ secrets.MYSQL_ROOT_PASSWORD }}"
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -u root -p${{ env.MYSQL_ROOT_PASSWORD }}"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
@@ -44,4 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: my-spring-app
-          path: target/*.jar.jar
+          path: target/*.jar
