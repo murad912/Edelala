@@ -12,11 +12,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Define a MySQL service container
     services:
       mysql_db:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: ${{ secrets.MYSQL_ROOT_PASSWORD }} # Use secrets here
           MYSQL_DATABASE: test_db
         ports:
           - 3306:3306
@@ -43,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: my-spring-app
-          path: target/*.jar
+          path: target/*.jar.jar
