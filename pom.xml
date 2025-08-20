@@ -134,6 +134,37 @@
 		</dependency>
 	</dependencies>
 
+<!--	<build>-->
+<!--		<plugins>-->
+<!--			<plugin>-->
+<!--				<groupId>org.apache.maven.plugins</groupId>-->
+<!--				<artifactId>maven-compiler-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<annotationProcessorPaths>-->
+<!--						<path>-->
+<!--							<groupId>org.projectlombok</groupId>-->
+<!--							<artifactId>lombok</artifactId>-->
+<!--						</path>-->
+<!--					</annotationProcessorPaths>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--			<plugin>-->
+<!--				<groupId>org.springframework.boot</groupId>-->
+<!--				<artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--				<configuration>-->
+<!--					<excludes>-->
+<!--						<exclude>-->
+<!--							<groupId>org.projectlombok</groupId>-->
+<!--							<artifactId>lombok</artifactId>-->
+<!--						</exclude>-->
+<!--					</excludes>-->
+<!--				</configuration>-->
+<!--			</plugin>-->
+<!--		</plugins>-->
+<!--	</build>-->
+<!--	Original   -->
+
+
 	<build>
 		<plugins>
 			<plugin>
@@ -160,34 +191,29 @@
 					</excludes>
 				</configuration>
 			</plugin>
-<!--			ADD      -->
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-surefire-plugin</artifactId>
-					<version>3.5.3</version>
-					<configuration>
-						<systemPropertyVariables>
-							<spring.profiles.active>ci</spring.profiles.active>
-						</systemPropertyVariables>
-					</configuration>
-				</plugin>
-<!--			END          -->
-
 		</plugins>
 	</build>
 
-<!--Add-->
 	<profiles>
 		<profile>
 			<id>ci</id>
 			<activation>
 				<activeByDefault>false</activeByDefault>
 			</activation>
-			<properties>
-				<spring.profiles.active>ci</spring.profiles.active>
-			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>3.5.3</version>
+						<configuration>
+							<systemPropertyVariables>
+								<spring.profiles.active>ci</spring.profiles.active>
+							</systemPropertyVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
-<!--	END.    -->
 </project>
